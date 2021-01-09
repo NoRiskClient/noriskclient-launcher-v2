@@ -3,6 +3,9 @@ import * as path from 'path'
 import * as url from 'url'
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 import { download } from 'electron-dl'
+import { Artifact } from '../src/interfaces/LauncherJSON'
+import { getMCDir } from '../src/installer/InstallerUtils'
+import 'babel-polyfill'
 
 let mainWindow: Electron.BrowserWindow | null
 
@@ -33,17 +36,30 @@ function createWindow () {
   })
 }
 
-ipcMain.on('download', (ev, args) => {
+process.setMaxListeners(0)
+
+ipcMain.on('download', async (ev, args) => {
   const focusedWindow = BrowserWindow.getFocusedWindow()
   if (focusedWindow) {
-    args.properties.onProgress = (status: number) => focusedWindow.webContents.send('download progress', status)
-    download(focusedWindow, args.url, args.properties)
-      .then(dl => {
-        console.log(dl.getSavePath())
-        focusedWindow.webContents.send('download complete', dl.getSavePath())
-      })
-      .catch(console.error)
+    args.properties.onProgress = (status: number) => focusedWindow.webContents.send('download-progress', status)
+    const lel = await download(focusedWindow, args.url, args.properties)
+    focusedWindow.webContents.send('download-completed', lel)
+    console.log(lel.getSavePath())
   }
+})
+
+ipcMain.on('download-files', async (event, files, args) => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  let promises
+  if (focusedWindow) {
+    promises = files.map((file: Artifact) =>
+      download(focusedWindow, file.url, { directory: getMCDir() + file.path }).then(dl => {
+        console.log(dl.getSavePath())
+      })
+    )
+  }
+
+  await Promise.all(promises)
 })
 
 app.on('ready', createWindow)

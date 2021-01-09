@@ -48,8 +48,6 @@ export interface NativesWindows64 {
   url: string;
 }
 
-
-
 export interface Downloads {
   artifact: Artifact;
 }
