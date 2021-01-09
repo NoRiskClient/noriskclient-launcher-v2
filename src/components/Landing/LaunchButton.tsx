@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
-import { downloadAndWriteFile, getMCDir } from '../../installer/InstallerUtils'
+import { installNoRiskStandAlone } from '../../installer/StandAloneInstaller'
+import { LauncherProfile } from '../../interfaces/LauncherAccount'
 
-export const LaunchButton = (): JSX.Element => {
-  const [test, setTest] = useState<string>('Jo')
+interface Props {
+    profile: LauncherProfile
+}
+
+export const LaunchButton = (props: Props): JSX.Element => {
+  const [test, setTest] = useState<string>('Start')
   return (
     <button onClick={() => {
-      console.log('Hallo')
-      downloadAndWriteFile('https://noriskclient.de/downloads/client/latest.jar', getMCDir() + '/norisk', setTest)
+      installNoRiskStandAlone(props.profile)
     }}>{test}</button>
   )
 }
