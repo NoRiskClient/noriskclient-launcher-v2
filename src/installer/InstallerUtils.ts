@@ -16,7 +16,7 @@ export const getMCDir = (): string => {
   }
 }
 
-export const downloadAndWriteFile = (url: string, path: string, status?: React.Dispatch<React.SetStateAction<string>>): void => {
+export const downloadAndWriteFile = (url: string, path?: string, status?: React.Dispatch<React.SetStateAction<string>>): void => {
   ipcRenderer.send('download',
     {
       url: url,
