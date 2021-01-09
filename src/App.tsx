@@ -9,9 +9,11 @@ document.body.appendChild(mainElement)
 const App = () => {
   return (
     <>
-      <Landing />
+      <div>Hallo</div>
+      <button>Moin</button>
+      <Landing/>
     </>
   )
 }
 
-render(<App />, mainElement)
+render(<App/>, mainElement)

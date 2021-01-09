@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path'
 import * as url from 'url'
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
+import { download } from 'electron-dl'
 
 let mainWindow: Electron.BrowserWindow | null
 
@@ -31,6 +32,19 @@ function createWindow () {
     mainWindow = null
   })
 }
+
+ipcMain.on('download', (ev, args) => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  if (focusedWindow) {
+    args.properties.onProgress = (status: number) => focusedWindow.webContents.send('download progress', status)
+    download(focusedWindow, args.url, args.properties)
+      .then(dl => {
+        console.log(dl.getSavePath())
+        focusedWindow.webContents.send('download complete', dl.getSavePath())
+      })
+      .catch(console.error)
+  }
+})
 
 app.on('ready', createWindow)
   .whenReady()
