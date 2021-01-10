@@ -1,6 +1,6 @@
 {
   "name": "electron-react-typescript",
-  "version": "1.0.0",
+  "version": "v1.0.0",
   "description": "An Electron boilerplate including TypeScript, React, Jest and ESLint.",
   "main": "./dist/main.js",
   "scripts": {
@@ -15,10 +15,13 @@
     "build:react": "webpack --config webpack/react.webpack.js",
     "package": "npm-run-all build package:dist",
     "package:dist": "electron-builder --dir",
-    "test": "jest"
+    "test": "jest",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "release": "build"
   },
   "keywords": [],
-  "author": "Diego Fernandes <diego.schell.f@gmail.com>",
+  "author": "NoRiskk",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -46,7 +49,7 @@
     "cross-env": "^7.0.2",
     "cz-conventional-changelog": "3.2.0",
     "electron": "^8.2.2",
-    "electron-builder": "^22.7.0",
+    "electron-builder": "^22.9.1",
     "electron-devtools-installer": "^3.1.0",
     "eslint": "^7.3.1",
     "eslint-config-prettier": "^6.11.0",
@@ -73,16 +76,20 @@
   },
   "dependencies": {
     "@types/adm-zip": "^0.4.33",
+    "@types/unzipper": "^0.10.3",
     "adm-zip": "^0.5.1",
     "electron-dl": "^3.0.2",
+    "electron-fetch": "^1.7.2",
     "extract-zip": "^2.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "sha256-file": "^1.0.0",
     "styled-components": "^5.1.1",
     "unzipper": "^0.10.11"
   },
   "build": {
-    "appId": "your.id",
+    "appId": "de.noriskclient.launcher",
+    "win": ["github"],
     "mac": {
       "category": "public.app-category.video"
     },
@@ -93,6 +100,10 @@
       "package.json",
       "dist/**"
     ]
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/npm/cli.git"
   },
   "config": {
     "commitizen": {

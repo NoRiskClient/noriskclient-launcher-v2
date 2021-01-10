@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { installNoRiskStandAlone } from '../../installer/StandAloneInstaller'
 import { LauncherProfile } from '../../interfaces/LauncherAccount'
+import { installNoRiskForge } from '../../installer/ForgeInstaller'
+import { installNoRiskFabric } from '../../installer/FabricInstaller'
 
 interface Props {
     profile: LauncherProfile
