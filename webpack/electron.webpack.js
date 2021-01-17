@@ -17,6 +17,18 @@ module.exports = {
         use: {
           loader: 'babel-loader'
         }
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: "images/[name].[ext]",
+              limit: 8192
+            }
+          }
+        ]
       }
     ]
   },

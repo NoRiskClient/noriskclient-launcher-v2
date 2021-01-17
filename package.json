@@ -1,7 +1,7 @@
 {
-  "name": "electron-react-typescript",
-  "version": "v1.0.0",
-  "description": "An Electron boilerplate including TypeScript, React, Jest and ESLint.",
+  "name": "noriskclient-launcher-v2",
+  "version": "0.0.5",
+  "description": "Minecraft Launcher for NoRisk Client",
   "main": "./dist/main.js",
   "scripts": {
     "dev": "npm-run-all -p dev:react electron:serve",
@@ -9,6 +9,7 @@
     "dev:react": "cross-env NODE_ENV=development webpack-dev-server --config webpack/react.webpack.js --mode development",
     "electron:serve": "wait-on http-get://localhost:4000/ && npm run dev:electron",
     "start:electron": "electron .",
+    "publish": "build --win -p always",
     "build": "npm-run-all build:electron build:react",
     "build:run": "npm-run-all build start:electron",
     "build:electron": "webpack --config webpack/electron.webpack.js",
@@ -16,9 +17,9 @@
     "package": "npm-run-all build package:dist",
     "package:dist": "electron-builder --dir",
     "test": "jest",
+    "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "release": "build"
+    "dist": "electron-builder"
   },
   "keywords": [],
   "author": "NoRiskk",
@@ -45,7 +46,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "commitizen": "^4.1.2",
+    "commitizen": "^4.2.2",
     "cross-env": "^7.0.2",
     "cz-conventional-changelog": "3.2.0",
     "electron": "^8.2.2",
@@ -69,7 +70,7 @@
     "prettier": "^2.0.5",
     "ts-jest": "^26.1.1",
     "typescript": "^3.9.5",
-    "wait-on": "^5.0.1",
+    "wait-on": "^5.2.1",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
@@ -81,15 +82,59 @@
     "electron-dl": "^3.0.2",
     "electron-fetch": "^1.7.2",
     "extract-zip": "^2.0.1",
+    "file-loader": "^6.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "sha256-file": "^1.0.0",
     "styled-components": "^5.1.1",
-    "unzipper": "^0.10.11"
+    "unzipper": "^0.10.11",
+    "url-loader": "^4.1.1"
   },
   "build": {
-    "appId": "de.noriskclient.launcher",
-    "win": ["github"],
+    "appId": "de.noriskclient.noriskclient-launcher-v2",
+    "productName": "NoRisk Client",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "NoRiskClient",
+        "repo": "noriskclient-launcher-v2"
+      }
+    ],
+    "win": {
+      "publish": [
+        "github"
+      ],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
     "mac": {
       "category": "public.app-category.video"
     },
@@ -102,8 +147,8 @@
     ]
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/npm/cli.git"
+    "type": "git",
+    "url": "https://github.com/NoRiskClient/noriskclient-launcher-v2"
   },
   "config": {
     "commitizen": {
