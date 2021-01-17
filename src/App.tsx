@@ -8,28 +8,18 @@ import { GlobalStyle } from './styles/GlobalStyle'
 import { LaunchButton } from './components/Landing/LaunchButton'
 import Background from './images/sky-background.png'
 
-const script = document.createElement('script')
-script.crossOrigin = 'anonymous'
-script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'
-script.integrity = 'sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8='
+import jquery from 'jquery'
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+window.$ = window.jQuery = jquery
 
 const script2 = document.createElement('script')
 script2.crossOrigin = 'anonymous'
 script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js'
 script2.integrity = 'sha256-NGC9JEuTWN4GhTj091wctgjzftr+8WNDmw0H8J5YPYE='
 
-const script3 = document.createElement('script')
-script3.crossOrigin = 'anonymous'
-script3.src = 'https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js'
-
-const script4 = document.createElement('script')
-script4.type = 'text/babel'
-script4.src = 'main.ts'
-
-document.head.appendChild(script)
 document.head.appendChild(script2)
-document.head.appendChild(script3)
-document.head.appendChild(script4)
 
 const mainElement = document.createElement('div')
 mainElement.setAttribute('id', 'root')
@@ -38,26 +28,45 @@ document.body.appendChild(mainElement)
 const App = () => {
   const [profile, setProfile] = useState<LauncherProfile>({} as LauncherProfile)
   const [skinRender, setSkinRender] = useState<any>()
+  const [isApiLoaded, setApiLoaded] = useState<boolean>(false)
 
   useEffect(() => {
+    const id = 'skinRenderApi'
+    if (document.getElementById(id) === null) {
+      const script = document.createElement('script')
+      script.setAttribute('src', 'https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js')
+      script.setAttribute('id', id)
+      document.head.appendChild(script)
+      script.onload = () => {
+        setApiLoaded(true)
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const skin = new SkinRender({ canvas: { width: '500', height: '500' } }, document.getElementById('3d-skin'))
-    if (profile?.minecraftProfile?.name) {
-      skin.render(profile.minecraftProfile.name, () => {
-        setSkinRender((prevState: any) => {
-          if (prevState !== undefined) {
-            prevState.style.display = 'none'
-          }
-          // TODO das hier fixxen
-          setInterval(() => {
-            skin.playerModel.rotation.y += 0.01
-          }, 10)
-          return skin._renderer.domElement
+    if (isApiLoaded) {
+      console.log('ERSTELLE SKIN?!')
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const skin = new SkinRender({ canvas: { width: '500', height: '500' } }, document.getElementById('3d-skin'))
+      if (profile?.minecraftProfile?.name) {
+        skin.render(profile.minecraftProfile.name, () => {
+          setSkinRender((prevState: any) => {
+            if (prevState !== undefined) {
+              prevState.style.display = 'none'
+            }
+            // TODO das hier fixxen
+            setInterval(() => {
+              skin.playerModel.rotation.y += 0.005
+            }, 10)
+            return skin._renderer.domElement
+          })
         })
-      })
+      }
     }
-  }, [profile?.minecraftProfile?.name])
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+  }, [profile?.minecraftProfile?.name, isApiLoaded])
   useEffect(() => {
     const json = JSON.parse(fs.readFileSync(getMCDir() + '/' + 'launcher_accounts.json') as unknown as string)
     Object.entries(json.accounts).map(value => {
@@ -75,7 +84,7 @@ const App = () => {
       backgroundRepeat: 'no-repeat'
     }}>
       <GlobalStyle/>
-      <div className={'yo'} id={'3d-skin'}/>
+      <div className={'shadow'} id={'3d-skin'}/>
       <div>Hallo</div>
       <button>Moin</button>
       <LaunchButton profile={profile}/>

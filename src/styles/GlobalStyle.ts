@@ -9,4 +9,9 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
     overflow: hidden;
 }
+   .shadow > canvas {
+                -webkit-filter: drop-shadow(5px 5px 5px #222);
+                filter: drop-shadow(5px 5px 5px #222);
+   }
+
 `
