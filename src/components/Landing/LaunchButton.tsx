@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
-import { installNoRiskStandAlone } from '../../installer/StandAloneInstaller'
 import { LauncherProfile } from '../../interfaces/LauncherAccount'
+import 'babel-polyfill'
+import { installNoRiskStandAlone } from '../../installer/StandAloneInstaller'
 import { installNoRiskForge } from '../../installer/ForgeInstaller'
-import { installNoRiskFabric } from '../../installer/FabricInstaller'
 
 interface Props {
     profile: LauncherProfile
 }
 
 export const LaunchButton = (props: Props): JSX.Element => {
-  const [test, setTest] = useState<string>('Start')
+  const [status, setStatus] = useState<string>('Start')
+  const [isStarting, setStarting] = useState<boolean>(false)
   return (
     <button onClick={() => {
-      installNoRiskStandAlone(props.profile)
-    }}>{test}</button>
+      if (!isStarting) {
+        setStarting(true)
+        installNoRiskForge({ setStatus: setStatus, profile: props.profile, setIsStarting: setStarting })
+      }
+    }}>{status}</button>
   )
 }

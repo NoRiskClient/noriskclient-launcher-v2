@@ -5,7 +5,10 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import { download } from 'electron-dl'
 import 'babel-polyfill'
 
+import { EventEmitter } from 'events'
+
 let mainWindow: Electron.BrowserWindow | null
+EventEmitter.defaultMaxListeners = 30
 
 function createWindow () {
   mainWindow = new BrowserWindow({

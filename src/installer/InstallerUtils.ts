@@ -1,9 +1,13 @@
 import os from 'os'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, netLog } from 'electron'
 import electronDl from 'electron-dl'
 import * as fs from 'fs'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import sha256File from 'sha256-file'
 import { LauncherJSON, Library } from '../interfaces/LauncherJSON'
-import { MinecraftVersion, NRC_FABRIC_1_16_4 } from '../interfaces/MinecraftVersion'
+import { MinecraftVersion } from '../interfaces/MinecraftVersion'
+import React from 'react'
 
 export const getOS = (): string => {
   switch (os.platform()) {
@@ -24,55 +28,43 @@ export const getMCDir = (): string => {
 }
 
 interface FileOptions extends electronDl.Options {
-    fileToCheck?: string
+    setStatus?: React.Dispatch<React.SetStateAction<string>>,
+    fileToCheck?: string,
 }
 
-export const downloadAndWriteFile = (url: string, properties: FileOptions, forceDownload = false, cb?: CallableFunction): void => {
-  if (!forceDownload) {
-    if (properties.filename && properties.directory) {
-      console.log('File exists: ' + fs.existsSync(properties.directory + '/' + properties.filename) + ' ' + properties.directory + '/' + properties.filename)
-      if (properties.fileToCheck) {
-        console.log('Extra File:' + properties.fileToCheck + ' ' + fs.existsSync(properties.fileToCheck))
-        if (fs.existsSync(properties.fileToCheck)) {
-          if (cb) {
-            cb()
+export const downloadAndWriteFile = (url: string, properties: FileOptions, forceDownload = false): Promise<unknown> => {
+  return new Promise((resolve) => {
+    if (!forceDownload) {
+      if (properties.filename && properties.directory) {
+        if (properties.fileToCheck) {
+          if (fs.existsSync(properties.fileToCheck)) {
+            return resolve()
           }
-          return
+        } else if (fs.existsSync(properties.directory + '/' + properties.filename)) {
+          return resolve()
         }
-      } else if (fs.existsSync(properties.directory + '/' + properties.filename)) {
-        if (cb) {
-          cb()
-        }
-        return
       }
     }
-  }
-  ipcRenderer.send('download',
-    {
-      url: url,
-      properties: { ...properties }
+    ipcRenderer.send('download', { url: url, properties: { ...properties } })
+    ipcRenderer.once('download-completed', (event, args) => {
+      resolve({ event: event, args: args })
     })
-  ipcRenderer.once('download-completed', (event, file) => {
-    if (cb) {
-      cb()
-    }
-  })
-  ipcRenderer.on('download-progress', (event, progress) => {
-    /* if (status) {
-              status(Math.floor(progress.percent * 100) + '%')
-            } */
-    // console.log(progress)
+    ipcRenderer.on('download-progress', (event, progress) => {
+      if (properties.setStatus) {
+        properties.setStatus(`Downloading ${properties.filename} ${Math.floor(progress.percent * 100)}%`)
+      }
+    })
   })
 }
 
 export const installLibraries = (version: MinecraftVersion, cb: CallableFunction): void => {
-  console.log('install libraries')
   const json: LauncherJSON = JSON.parse(fs.readFileSync(getMCDir() + version.jsonPath) as unknown as string)
   const library: Array<Library> = json.libraries.filter(value => {
+    console.log(value.downloads?.artifact?.path)
     return value.downloads?.artifact?.url && value.downloads?.artifact?.path
   })
-  library.forEach(value => {
-    console.log(value.downloads.artifact.path)
+  library.forEach((value) => {
+    console.log(value)
   })
   downloadMinecraftDependenciesRecursivly(library, 0, cb)
 }
@@ -80,19 +72,29 @@ export const installLibraries = (version: MinecraftVersion, cb: CallableFunction
 const downloadMinecraftDependenciesRecursivly = (library: Array<Library>, index: number, cb: CallableFunction): void => {
   const value = library[index]
   if (value) {
+    console.log(value.downloads.artifact.path + fs.existsSync(getMCDir() + '/libraries/' + value.downloads.artifact.path))
     if (fs.existsSync(getMCDir() + '/libraries/' + value.downloads.artifact.path)) {
       downloadMinecraftDependenciesRecursivly(library, index + 1, cb)
     } else {
       downloadAndWriteFile(value.downloads.artifact.url, {
         directory: getMCDir() + '/libraries',
         filename: value.downloads.artifact.path
-      }, false, () => {
+      }).then(() => {
         downloadMinecraftDependenciesRecursivly(library, index + 1, cb)
       })
     }
   } else {
     cb()
   }
+}
+
+export const checkMD5 = (jarPath: string, txtPath: string): boolean => {
+  if (!fs.existsSync(jarPath)) {
+    return false
+  }
+  const currentMD5 = sha256File(jarPath)
+  const newestMD5 = fs.readFileSync(txtPath, 'utf8').substr(0, 64)
+  return (newestMD5 === currentMD5)
 }
 
 export const getNatives = (version: string): string => {
