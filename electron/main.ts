@@ -12,7 +12,7 @@ EventEmitter.defaultMaxListeners = 30
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 750,
+    width: 800,
     height: 600,
     icon: './build/background.png',
     backgroundColor: '#FFFFFF',

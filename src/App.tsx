@@ -4,11 +4,13 @@ import { Landing } from './components/Landing/Landing'
 import { LauncherProfile } from './interfaces/LauncherAccount'
 import { getMCDir } from './installer/InstallerUtils'
 import fs from 'fs'
-import { GlobalStyle } from './styles/GlobalStyle'
-import { LaunchButton } from './components/Landing/LaunchButton'
-import Background from './images/sky-background.png'
+import { GlobalStyle, skyBg } from './styles/GlobalStyle'
 
 import jquery from 'jquery'
+import { NavBar } from './components/NavBar/NavBar'
+import { ThemeProvider } from 'styled-components'
+import { createMuiTheme, Box } from '@material-ui/core'
+import { red } from '@material-ui/core/colors'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -24,6 +26,13 @@ document.head.appendChild(script2)
 const mainElement = document.createElement('div')
 mainElement.setAttribute('id', 'root')
 document.body.appendChild(mainElement)
+
+const theme = createMuiTheme({
+  palette: {
+    primary: red,
+    secondary: red
+  }
+})
 
 const App = () => {
   const [profile, setProfile] = useState<LauncherProfile>({} as LauncherProfile)
@@ -42,10 +51,7 @@ const App = () => {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     if (isApiLoaded) {
-      console.log('ERSTELLE SKIN?!')
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const skin = new SkinRender({ canvas: { width: '500', height: '500' } }, document.getElementById('3d-skin'))
@@ -64,8 +70,6 @@ const App = () => {
         })
       }
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
   }, [profile?.minecraftProfile?.name, isApiLoaded])
   useEffect(() => {
     const json = JSON.parse(fs.readFileSync(getMCDir() + '/' + 'launcher_accounts.json') as unknown as string)
@@ -77,20 +81,19 @@ const App = () => {
     })
   }, [])
   return (
-    <div style={{
-      backgroundImage: `url(${Background})`,
-      backgroundSize: 'contain',
-      height: '100%',
-      backgroundRepeat: 'no-repeat'
-    }}>
-      <GlobalStyle/>
-      <div className={'shadow'} id={'3d-skin'}/>
-      <div>Hallo</div>
-      <button>Moin</button>
-      <LaunchButton profile={profile}/>
-      <Landing/>
-      <p>Profile {profile?.minecraftProfile?.name}</p>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div style={skyBg}>
+        <GlobalStyle/>
+        <NavBar profile={profile} setProfile={setProfile}/>
+        <Landing {...profile}/>
+        <Box
+          position="absolute"
+          top={40}
+          left="40%"
+          className={'shadow'}
+          id={'3d-skin'}/>
+      </div>
+    </ThemeProvider>
   )
 }
 

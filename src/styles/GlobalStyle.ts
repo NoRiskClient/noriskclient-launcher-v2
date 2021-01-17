@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components'
+import Background from '../images/sky-background.png'
 
 export const GlobalStyle = createGlobalStyle`
   * {
@@ -13,5 +14,19 @@ export const GlobalStyle = createGlobalStyle`
                 -webkit-filter: drop-shadow(5px 5px 5px #222);
                 filter: drop-shadow(5px 5px 5px #222);
    }
+   
+   .launch-button {
+   border: 5px solid red;
+  position: absolute;
+bottom: 0;
+right: 0;
+   }
 
 `
+
+export const skyBg = {
+  backgroundImage: `url(${Background})`,
+  backgroundSize: 'contain',
+  height: '100%',
+  backgroundRepeat: 'no-repeat'
+}

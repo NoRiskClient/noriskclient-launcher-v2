@@ -32,7 +32,11 @@ module.exports = {
             }
           }
         ]
-      }
+      },
+      {
+        test: /\.css$/,
+        loader: ['typings-for-css-modules-loader?modules']
+      },
     ]
   },
   devServer: {

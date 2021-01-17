@@ -60,11 +60,7 @@ export const downloadAndWriteFile = (url: string, properties: FileOptions, force
 export const installLibraries = (version: MinecraftVersion, cb: CallableFunction): void => {
   const json: LauncherJSON = JSON.parse(fs.readFileSync(getMCDir() + version.jsonPath) as unknown as string)
   const library: Array<Library> = json.libraries.filter(value => {
-    console.log(value.downloads?.artifact?.path)
     return value.downloads?.artifact?.url && value.downloads?.artifact?.path
-  })
-  library.forEach((value) => {
-    console.log(value)
   })
   downloadMinecraftDependenciesRecursivly(library, 0, cb)
 }
