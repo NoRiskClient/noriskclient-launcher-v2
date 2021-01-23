@@ -7,7 +7,6 @@ import fs from 'fs'
 import { getMCDir } from '../../installer/InstallerUtils'
 
 interface ISwitchAccountMenu {
-  open: boolean,
   handleClose: () => void,
   switchProfile: (profile: LauncherProfile) => void,
   anchorEl: HTMLElement | null;
@@ -34,7 +33,7 @@ export const SwitchAccount = (props: ISwitchAccountMenu): JSX.Element => {
         vertical: 'top',
         horizontal: 'right'
       }}
-      open={props.open}
+      open={Boolean(props.anchorEl)}
       onClose={props.handleClose}>
 
       {accounts?.map(account => {

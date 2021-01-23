@@ -9,19 +9,32 @@ import { GlobalStyle, skyBg } from './styles/GlobalStyle'
 import jquery from 'jquery'
 import { NavBar } from './components/NavBar/NavBar'
 import { ThemeProvider } from 'styled-components'
-import { createMuiTheme, Box } from '@material-ui/core'
+import { Box, createMuiTheme } from '@material-ui/core'
 import { red } from '@material-ui/core/colors'
+import { LaunchSettings } from './interfaces/LaunchSettings'
+import { NRC_FABRIC_1_16_4 } from './interfaces/MinecraftVersion'
+import 'babel-polyfill'
+
+import { v1 as uuid } from 'uuid'
+import { ipcRenderer } from 'electron'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 window.$ = window.jQuery = jquery
 
-const script2 = document.createElement('script')
-script2.crossOrigin = 'anonymous'
-script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js'
-script2.integrity = 'sha256-NGC9JEuTWN4GhTj091wctgjzftr+8WNDmw0H8J5YPYE='
+const threeScript = document.createElement('script')
+threeScript.id = 'threeScript'
+threeScript.crossOrigin = 'anonymous'
+threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js'
+threeScript.integrity = 'sha256-NGC9JEuTWN4GhTj091wctgjzftr+8WNDmw0H8J5YPYE='
 
-document.head.appendChild(script2)
+const skinRenderScript = document.createElement('script')
+skinRenderScript.id = 'skinRenderScript'
+skinRenderScript.crossOrigin = 'anonymous'
+skinRenderScript.src = 'https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js'
+
+document.head.appendChild(threeScript)
+document.head.appendChild(skinRenderScript)
 
 const mainElement = document.createElement('div')
 mainElement.setAttribute('id', 'root')
@@ -36,22 +49,42 @@ const theme = createMuiTheme({
 
 const App = () => {
   const [profile, setProfile] = useState<LauncherProfile>({} as LauncherProfile)
+  const [launchSettings, setLaunchSettings] = useState<LaunchSettings>({
+    version: NRC_FABRIC_1_16_4
+  })
   const [skinRender, setSkinRender] = useState<any>()
-  const [isApiLoaded, setApiLoaded] = useState<boolean>(false)
+  const [isApiLoaded, setApiLoaded] = useState({ skinApi: false, threeApi: false })
 
   useEffect(() => {
-    const id = 'skinRenderApi'
-    if (document.getElementById(id) === null) {
-      const script = document.createElement('script')
-      script.setAttribute('src', 'https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js')
-      script.setAttribute('id', id)
-      document.head.appendChild(script)
-      script.onload = () => {
-        setApiLoaded(true)
+    const skinRenderId = 'skinRenderApi'
+    const threeId = 'threeApi'
+    if (document.getElementById(skinRenderId) === null && document.getElementById(threeId) === null) {
+      const skinRenderScript = document.createElement('script')
+      const threeScript = document.createElement('script')
+      skinRenderScript.setAttribute('src', 'https://cdn.jsdelivr.net/gh/InventivetalentDev/MineRender@1.4.6/dist/skin.min.js')
+      skinRenderScript.setAttribute('id', skinRenderId)
+
+      threeScript.crossOrigin = 'anonymous'
+      threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/94/three.min.js'
+      threeScript.integrity = 'sha256-NGC9JEuTWN4GhTj091wctgjzftr+8WNDmw0H8J5YPYE='
+
+      document.head.appendChild(threeScript)
+      document.head.appendChild(skinRenderScript)
+
+      skinRenderScript.onload = () => {
+        setApiLoaded(prevState => {
+          return { skinApi: true, threeApi: prevState.threeApi }
+        })
+      }
+
+      threeScript.onload = () => {
+        setApiLoaded(prevState => {
+          return { skinApi: prevState.skinApi, threeApi: true }
+        })
       }
     }
 
-    if (isApiLoaded) {
+    if (isApiLoaded.threeApi && isApiLoaded.skinApi) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const skin = new SkinRender({ canvas: { width: '500', height: '500' } }, document.getElementById('3d-skin'))
@@ -79,13 +112,29 @@ const App = () => {
       }
       return value[1] as LauncherProfile
     })
+    console.log('moin')
+    const apiUrl = 'https://authserver.mojang.com'
+
+    const headerDict = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+    ipcRenderer.send('auth', {
+      username: '',
+      password: '',
+      path: '/authenticate'
+    })
+    ipcRenderer.once('auth-completed', (event, args) => {
+      console.log(args)
+    })
   }, [])
   return (
     <ThemeProvider theme={theme}>
       <div style={skyBg}>
         <GlobalStyle/>
         <NavBar profile={profile} setProfile={setProfile}/>
-        <Landing {...profile}/>
+        <Landing profile={profile} launchSettings={launchSettings} setLaunchSettings={setLaunchSettings} />
         <Box
           position="absolute"
           top={40}

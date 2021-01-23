@@ -36,10 +36,9 @@ interface Props {
   setProfile: (profile: LauncherProfile) => void;
 }
 
-export const NavBar = (props: Props) => {
+export const NavBar = (props: Props): JSX.Element => {
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -73,7 +72,7 @@ export const NavBar = (props: Props) => {
                       ? 'https://crafatar.com/avatars/' + props.profile.minecraftProfile.id
                       : 'https://crafatar.com/avatars/54f04497-5693-48b9-b5de-70db3b6159d5'}/>
                 </IconButton>
-                <SwitchAccount switchProfile={props?.setProfile} open={open} handleClose={handleClose} anchorEl={anchorEl}/>
+                <SwitchAccount switchProfile={props?.setProfile} handleClose={handleClose} anchorEl={anchorEl}/>
               </>
             </div>
           )}

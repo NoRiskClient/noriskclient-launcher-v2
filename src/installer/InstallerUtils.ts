@@ -36,6 +36,9 @@ export const downloadAndWriteFile = (url: string, properties: FileOptions, force
   return new Promise((resolve) => {
     if (!forceDownload) {
       if (properties.filename && properties.directory) {
+        if (properties.setStatus) {
+          properties.setStatus(`Checking is file exists ${properties.filename}`)
+        }
         if (properties.fileToCheck) {
           if (fs.existsSync(properties.fileToCheck)) {
             return resolve()
