@@ -59,7 +59,7 @@ const getLaunchOptions = (version: MinecraftVersion, profile: LauncherProfile): 
     '--version', version.folderName,
     '--gameDir', mcDir,
     '--assetsDir', mcDir + '/assets',
-    '--username', 'NoRiskk',
+    '--username', profile.minecraftProfile.name,
     '--assetIndex', version.assetIndex,
     '--uuid', profile.minecraftProfile.id,
     '--accessToken', profile.accessToken,
