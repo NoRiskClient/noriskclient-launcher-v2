@@ -50,8 +50,8 @@ export const NavBar = (props: Props): JSX.Element => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
+      <AppBar position="static" style={{ color: '#2b2c2e' }}>
+        <Toolbar style={{ color: '#161617' }}>
           <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
             <MenuIcon/>
           </IconButton>

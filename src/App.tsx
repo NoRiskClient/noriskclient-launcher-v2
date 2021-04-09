@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { render } from 'react-dom'
+import { News } from './components/News/News'
 import { Landing } from './components/Landing/Landing'
 import { LauncherProfile } from './interfaces/LauncherAccount'
 import { getMCDir } from './installer/InstallerUtils'
@@ -142,6 +143,7 @@ const App = () => {
           className={'shadow'}
           id={'3d-skin'}/>
       </div>
+      <News />
     </ThemeProvider>
   )
 }
